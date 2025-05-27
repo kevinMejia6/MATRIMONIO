@@ -17,6 +17,9 @@
     color: #fff;
     text-align: center;
     padding: 2rem;
+    overflow-x: hidden;
+    position: relative;
+    overflow-y: hidden;
   }
   .container {
     background: rgba(255, 255, 255, 0.15);
@@ -26,6 +29,8 @@
     box-shadow: 0 8px 32px rgba(0,0,0,0.12);
     max-width: 500px;
     width: 100%;
+    position: relative;
+    z-index: 10;
   }
   h1 {
     font-family: 'Great Vibes', cursive;
@@ -58,21 +63,81 @@
   button:active {
     transform: scale(0.95);
   }
+  /* Heart container for floating hearts */
+  .heart {
+    position: fixed;
+    bottom: -50px;
+    color: #ff4e50;
+    font-size: 24px;
+    z-index: 5;
+    pointer-events: none;
+    user-select: none;
+    opacity: 0.8;
+    filter: drop-shadow(0 0 2px #ff4e50);
+  }
 </style>
 </head>
 <body>
-  <div class="container" role="main">
+  <div class="container" role="main" aria-label="Mensaje de amor">
     <h1>Te Amo, Amor de Mi Vida</h1>
     <p>¿Quieres casarte conmigo?</p>
     <button aria-label="Casarnos">¡Sí, quiero!</button>
   </div>
+
+  <!-- Floating hearts will be appended here by JS -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" defer></script>
   <script>
-    const button = document.querySelector('button');
-    button.addEventListener('click', () => {
-      alert('¡Me haces la persona más feliz del mundo! 💖✨');
-      button.textContent = 'Te Amo por Siempre ❤️';
-      button.disabled = true;
-      button.style.cursor = 'default';
+    document.addEventListener('DOMContentLoaded', () => {
+      const container = document.body;
+      const colors = ['#ff4e50', '#ff6a6e', '#ff8696', '#ffb3b8', '#ffccd1'];
+      const heartsCount = 25;
+
+      function createHeart() {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.fontSize = (12 + Math.random() * 24) + 'px';
+        heart.style.color = colors[Math.floor(Math.random() * colors.length)];
+        heart.textContent = '❤';
+        container.appendChild(heart);
+
+        const duration = 4000 + Math.random() * 3000;
+        const translateX = (Math.random() - 0.5) * 40; // left or right drift
+        anime({
+          targets: heart,
+          translateY: [
+            { value: -window.innerHeight - 60, duration: duration, easing: 'linear' }
+          ],
+          translateX: [
+            { value: translateX, duration: duration, easing: 'easeInOutSine' }
+          ],
+          opacity: [
+            { value: 0, duration: 500, delay: duration - 500, easing: 'linear' }
+          ],
+          rotate: {
+            value: 360,
+            duration: duration,
+            easing: 'linear'
+          },
+          complete: () => {
+            heart.remove();
+            createHeart(); // spawn a new heart after this one finishes
+          }
+        });
+      }
+
+      for (let i = 0; i < heartsCount; i++) {
+        setTimeout(createHeart, i * 300);
+      }
+
+      const button = document.querySelector('button');
+      button.addEventListener('click', () => {
+        alert('¡Me haces la persona más feliz del mundo! 💖✨');
+        button.textContent = 'Te Amo por Siempre ❤️';
+        button.disabled = true;
+        button.style.cursor = 'default';
+      });
     });
   </script>
 </body>
